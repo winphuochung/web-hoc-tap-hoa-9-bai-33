@@ -1331,7 +1331,16 @@ function doSubmit(){
     ? "🎉 Xuất sắc! Em đạt " + score + "/10 điểm. Em đã nắm chắc kiến thức về hoá học vỏ Trái Đất rồi!"
     : "Em đạt " + score + "/10 điểm. Hãy xem lại phần giải thích ở các câu chưa đúng rồi làm lại nhé!";
   banner.scrollIntoView({ behavior: "smooth", block: "center" });
-  /* CHỜ /exec: chưa có link Apps Script Web App cho Bài 33 — điểm chỉ lưu localStorage (điểm cao nhất). Parent sẽ patch fetch sau khi có /exec. */
+  if (!scoreSent) {
+    scoreSent = true;
+    try {
+      var secs = Math.max(0, Math.round((Date.now() - (quizStartTime || Date.now())) / 1000));
+      var dur = Math.floor(secs / 60) + " phút " + (secs % 60) + " giây";
+      var detail = QUESTIONS.map(function(item, qi){ return (qi + 1) + ": " + (answers[qi] < 0 ? "-" : LETTERS[answers[qi]]) + "/" + LETTERS[item.ans]; }).join(", ");
+      fetch("https://script.google.com/macros/s/AKfycbyRXgHYBpRQpC7CLFSdItm9wQRXywVlIBQ6jwl_-IkJNddDzYMzSy7PcmCKLVbnqFM6/exec", {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body: JSON.stringify({name: currentStudent.name, className: currentStudent.cls, score: score, correct: score, detail: detail, duration: dur})}).catch(function(){});
+    } catch (e) {}
+  }
+  
   scoreSent = true;
 }
 var quizModal = document.getElementById("quizModal");
